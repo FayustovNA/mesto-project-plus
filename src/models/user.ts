@@ -4,9 +4,9 @@ import bcryptjs from 'bcryptjs';
 import ApiError from '../errors/api-err';
 
 interface IUser {
-  name?: string;
-  about?: string;
-  avatar?: string;
+  name: string;
+  about: string;
+  avatar: string;
   email: string;
   password: string;
 }

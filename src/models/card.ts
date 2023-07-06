@@ -4,11 +4,11 @@ import { isUrlImg } from '../utils/config';
 
 
 interface ICard {
-  name?: string;
-  link?: string;
-  owner?: mongoose.Schema.Types.ObjectId;
-  likes?: mongoose.Schema.Types.ObjectId[];
-  createdAt?: mongoose.Schema.Types.Date;
+  name: string;
+  link: string;
+  owner: mongoose.Schema.Types.ObjectId;
+  likes: mongoose.Schema.Types.ObjectId[];
+  createdAt: mongoose.Schema.Types.Date;
 }
 
 const cardSchema = new mongoose.Schema<ICard>({

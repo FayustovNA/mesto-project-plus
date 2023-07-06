@@ -1,4 +1,4 @@
-// import { Error } from "../types/type";
+const { INCORRECT_DATA_ERROR, NOT_FOUND_ERROR, UNAUTHORIZED_ERROR } = require('./config-err');
 
 class ApiError extends Error {
   public status: number;
@@ -11,15 +11,15 @@ class ApiError extends Error {
   }
 
   static UnauthorizedError() {
-    return new ApiError(401, 'The user is not logged in')
+    return new ApiError(UNAUTHORIZED_ERROR, 'The user is not logged in')
   }
 
   static IncorrectRequest(message: string, errors: any = []) {
-    return new ApiError(400, message, errors)
+    return new ApiError(INCORRECT_DATA_ERROR, message, errors)
   }
 
   static NotFoundError() {
-    return new ApiError(404, 'Data not found')
+    return new ApiError(NOT_FOUND_ERROR, 'Data or pages not found')
   }
 }
 

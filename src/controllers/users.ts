@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { Error } from 'mongoose';
 import userModel from '../models/user';
 import bcryptjs from 'bcryptjs';
 import { IRequest } from '../types/type';
@@ -54,7 +55,7 @@ export const getUsers = (req: Request, res: Response, next: NextFunction) => {
   return userModel
     .find({})
     .then((users) => res.status(200).send({ data: users }))
-    .catch(() => res.status(500).send({ message: 'Server error' }));
+    .catch((err) => next(err));
 };
 
 //Возвращаем пользователя по _id
@@ -64,38 +65,65 @@ export const getUserById = async (req: IRequest, res: Response, next: NextFuncti
     const userId = req.params.userId;
     const user = await userModel.findById(userId);
     if (!user) {
-      return next(ApiError.NotFoundError());
+      return next(ApiError.NotFoundError())
     }
     return res.json({ data: user });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error });
+  }
+  catch (err) {
+    if (err instanceof Error.CastError) {
+      return next(ApiError.IncorrectRequest('Incorrect user data'));
+    }
+    return next(err);
   }
 };
 
 //Возвращаем текущего пользователя
 export const getActieveUsers = async (req: IRequest, res: Response, next: NextFunction) => {
-  const activeUserId = req.user?._id;
-  const user = await userModel.findById(activeUserId);
-  if (!user) {
-    return next(ApiError.NotFoundError());
+  try {
+    const activeUserId = req.user?._id;
+    const user = await userModel.findById(activeUserId);
+    if (!user) {
+      return next(ApiError.NotFoundError());
+    }
+    return res.json({ data: user });
   }
-  return res.json({ data: user });
+  catch (err) {
+    if (err instanceof Error.CastError) {
+      return next(ApiError.IncorrectRequest('Incorrect user data'));
+    }
+    return next(err);
+  }
 };
 
+
 // Обновляем профиль
-export const updateUser = async (req: IRequest, res: Response) => {
+export const updateUser = async (req: IRequest, res: Response, next: NextFunction) => {
   const userId = req.user?._id;
   const { name, about } = req.body;
-  userModel.findByIdAndUpdate(userId, { name: name, about: about }, { new: true })   // обновим имя и описание найденного по _id пользователя
+  userModel.findByIdAndUpdate(userId, { name: name, about: about }, { new: true }) // обновим имя и описание найденного по _id пользователя
+    .orFail(() => ApiError.NotFoundError())
     .then((user) => res.send({ data: { user } }))
-    .catch(() => res.status(500).send({ message: 'Server error' }));
+    .catch((err) => {
+      if (err instanceof Error.ValidationError) {
+        next(ApiError.IncorrectRequest('Incorrect data for user update'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 // Обновляем аватар
-export const updateAvatar = async (req: IRequest, res: Response) => {
+export const updateAvatar = async (req: IRequest, res: Response, next: NextFunction) => {
   const userId = req.user?._id;
   const { avatar } = req.body;
-  userModel.findByIdAndUpdate(userId, { avatar: avatar }, { new: true })   // обновим аватар найденного по _id пользователя
+  userModel.findByIdAndUpdate(userId, { avatar: avatar }, { new: true })  // обновим аватар найденного по _id пользователя
+    .orFail(() => ApiError.NotFoundError())
     .then((user) => res.send({ data: { user } }))
-    .catch(() => res.status(500).send({ message: 'Server error' }));
+    .catch((err) => {
+      if (err instanceof Error.ValidationError) {
+        next(ApiError.IncorrectRequest('Incorrect data for avatar of user update'));
+      } else {
+        next(err);
+      }
+    });
 }

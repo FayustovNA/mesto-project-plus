@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, NextFunction, Request, Response, } from 'express';
 import { getUsers, getUserById, updateAvatar, updateUser, getActieveUsers } from '../controllers/users';
 import { isUrlAvatar } from '../utils/config';
 

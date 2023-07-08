@@ -1,4 +1,9 @@
-import { model, Model, Schema, Document, HydratedDocument } from 'mongoose';
+import {
+  model,
+  Model,
+  Schema,
+  Document,
+} from 'mongoose';
 import validator from 'validator';
 import bcryptjs from 'bcryptjs';
 import ApiError from '../errors/api-err';
@@ -10,7 +15,6 @@ interface IUser {
   email: string;
   password: string;
 }
-
 interface UserModel extends Model<IUser> {
   findUserByCredentials: (email: string, password: string) => Promise<Document<unknown, any, IUser>>
 }
@@ -18,21 +22,18 @@ interface UserModel extends Model<IUser> {
 const userSchema = new Schema<IUser, UserModel>({
   name: { // у пользователя есть имя — опишем требования к имени в схеме:
     type: String, // имя — это строка
-    required: true, // обязательное поле
     minlength: 2,
     maxlength: 30,
     default: 'Жак-Ив Кусто',
   },
   about: {
     type: String, // о пользователе — это строка
-    required: true, // обязательное поле
     minlength: 2,
     maxlength: 200,
     default: 'Исследователь',
   },
   avatar: {
     type: String, // ссылка — это строка
-    required: true, // обязательное полеs
     validate: {
       validator: (urlAvatar: any) => validator.isURL(urlAvatar),
       message: 'Неправильный формат ccылки',
@@ -52,12 +53,10 @@ const userSchema = new Schema<IUser, UserModel>({
     type: String, // пароль — это строка
     required: true, // обязательное поле
     select: false,
-  }
+  },
 });
 
 // export default mongoose.model('user', userSchema);
-
-
 userSchema.static('findUserByCredentials', function findUserByCredentials(email: string, password: string) {
   return this.findOne({ email }).select('+password')
     .then((user) => {

@@ -1,24 +1,24 @@
 import { Request, Response, NextFunction } from 'express';
+import { Error } from 'mongoose';
 import cardModel from '../models/card';
 import { IRequest } from '../types/type';
 import ApiError from '../errors/api-err';
-import { Error } from 'mongoose';
 
-//Возвращаем все карточки
-export const getCards = (req: Request, res: Response) => {
+// Возвращаем все карточки
+export const getCards = (req: Request, res: Response, next: NextFunction) => {
   return cardModel
     .find({})
     .then((cards) => res.status(200).send({ data: cards }))
-    .catch(() => res.status(500).send({ message: 'Server error' }));
+    .catch(next);
 };
 
-//Создаем карточку
+// Создаем карточку
 export const createCard = (req: IRequest, res: Response, next: NextFunction) => {
   const { name, link } = req.body;
   const owner = req.user?._id;
   return cardModel.create({ name, link, owner })
     .then((card) => res.send({
-      data: card
+      data: card,
     }))
     .catch((err) => {
       if (err instanceof Error.ValidationError) {
@@ -27,16 +27,18 @@ export const createCard = (req: IRequest, res: Response, next: NextFunction) => 
         next(err);
       }
     });
-}
+};
 
-//Удаляем карточку по идентификатору
-export const deleteCardById = async (req: IRequest, res: Response, next: NextFunction
-) => {
+// Удаляем карточку по идентификатору
+export const deleteCardById = async (req: IRequest, res: Response, next: NextFunction) => {
   try {
     const { cardId } = req.params;
     const card = await cardModel.findById(cardId);
     if (!card) {
-      return ApiError.NotFoundError();
+      return next(ApiError.NotFoundError());
+    }
+    if (card.owner.toString() !== req.user?._id) {
+      return next(ApiError.ForbiddenError());
     }
     await card.deleteOne();
     res.status(200).send({ data: card });
@@ -47,13 +49,13 @@ export const deleteCardById = async (req: IRequest, res: Response, next: NextFun
       next(err);
     }
   }
-}
+};
 
-//Ставим лайк карточке
+// Ставим лайк карточке
 export const likeCard = async (
   req: IRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const { cardId } = req.params;
   cardModel.findByIdAndUpdate(
@@ -72,11 +74,11 @@ export const likeCard = async (
     });
 };
 
-//Убираем лайк карточке
+// Убираем лайк карточке
 export const dislikeCard = async (
   req: IRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const { cardId } = req.params;
   cardModel.findByIdAndUpdate(

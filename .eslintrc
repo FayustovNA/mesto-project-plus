@@ -37,15 +37,15 @@
         "js": "never",
         "ts": "never"
       }
-    ]
-  },
-  "no-underscore-dangle": [
-    "error",
-    {
-      "allow": [
-        "_id"
-      ]
-    }
-  ],
-  "linebreak-style": "off"
+    ],
+    "no-underscore-dangle": [
+      "error",
+      {
+        "allow": [
+          "_id"
+        ]
+      }
+    ],
+    "linebreak-style": "off"
+  }
 }

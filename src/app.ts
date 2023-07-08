@@ -29,6 +29,9 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 
 app.use(requestLogger); // подключаем логер запросов
 
+// подключаем rate-limiter
+app.use(limiter);
+
 app.post('/signin', celebrate({
   [Segments.BODY]: Joi.object().keys({
     email: Joi.string().required().email(),
@@ -52,9 +55,6 @@ app.use("/", router);
 app.use(errorLogger); // подключаем логер ошибок
 app.use(errors());
 app.use(errorsMiddleware);
-
-// подключаем rate-limiter
-app.use(limiter);
 
 app.listen(PORT, () => console.log('start on port ' + PORT));
 

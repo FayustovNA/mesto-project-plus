@@ -1,7 +1,5 @@
-import mongoose from "mongoose";
-import validator from 'validator';
+import mongoose from 'mongoose';
 import { isUrlImg } from '../utils/config';
-
 
 interface ICard {
   name: string;
@@ -37,7 +35,7 @@ const cardSchema = new mongoose.Schema<ICard>({
     default: [],
   },
   createdAt: {
-    type: Date, //  дата создания
+    type: Date, // дата создания
     default: Date.now,
   },
 });

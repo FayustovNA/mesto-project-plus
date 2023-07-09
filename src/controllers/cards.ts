@@ -6,7 +6,7 @@ import ApiError from '../errors/api-err';
 
 // Возвращаем все карточки
 export const getCards = (req: Request, res: Response, next: NextFunction) => {
-  return cardModel
+  cardModel
     .find({})
     .then((cards) => res.status(200).send({ data: cards }))
     .catch(next);
@@ -35,10 +35,10 @@ export const deleteCardById = async (req: IRequest, res: Response, next: NextFun
     const { cardId } = req.params;
     const card = await cardModel.findById(cardId);
     if (!card) {
-      return next(ApiError.NotFoundError());
+      throw next(ApiError.NotFoundError());
     }
     if (card.owner.toString() !== req.user?._id) {
-      return next(ApiError.ForbiddenError());
+      throw next(ApiError.ForbiddenError());
     }
     await card.deleteOne();
     res.status(200).send({ data: card });

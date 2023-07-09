@@ -21,7 +21,7 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
     password,
   } = req.body;
 
-  bcryptjs.hash(req.body.password, 10)
+  bcryptjs.hash(password, 10)
     .then((hash: string) => userModel.create({
       name,
       about,
@@ -68,7 +68,7 @@ export const login = (req: Request, res: Response, next: NextFunction) => {
 
 // Возвращаем всех пользователей
 export const getUsers = (req: Request, res: Response, next: NextFunction) => {
-  return userModel
+  userModel
     .find({})
     .then((users) => res.status(200).send({ data: users }))
     .catch((err) => next(err));
@@ -77,14 +77,13 @@ export const getUsers = (req: Request, res: Response, next: NextFunction) => {
 // Возвращаем пользователя по _id
 export const getUserById = async (req: IRequest, res: Response, next: NextFunction) => {
   try {
-    const userId = req.params.userId;
+    const { userId } = req.params;
     const user = await userModel.findById(userId);
     if (!user) {
       return next(ApiError.NotFoundError());
     }
     return res.json({ data: user });
-  }
-  catch (err) {
+  } catch (err) {
     if (err instanceof Error.CastError) {
       return next(ApiError.IncorrectRequest('Incorrect user data'));
     }
@@ -101,8 +100,7 @@ export const getActieveUsers = async (req: IRequest, res: Response, next: NextFu
       return next(ApiError.NotFoundError());
     }
     return res.json({ data: user });
-  }
-  catch (err) {
+  } catch (err) {
     if (err instanceof Error.CastError) {
       return next(ApiError.IncorrectRequest('Incorrect user data'));
     }

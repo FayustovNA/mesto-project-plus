@@ -11,10 +11,6 @@ interface SessionRequest extends Request {
   user?: string | JwtPayload;
 }
 
-const extractBearerToken = (header: string) => {
-  return header.replace('Bearer ', '');
-};
-
 export default (req: SessionRequest, res: Response, next: NextFunction) => {
   const { authorization } = req.headers;
 
@@ -23,7 +19,7 @@ export default (req: SessionRequest, res: Response, next: NextFunction) => {
     return;
   }
 
-  const token = extractBearerToken(authorization);
+  const token = authorization?.replace('Bearer ', '');
   let payload;
 
   try {

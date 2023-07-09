@@ -16,7 +16,9 @@ interface IUser {
   password: string;
 }
 interface UserModel extends Model<IUser> {
-  findUserByCredentials: (email: string, password: string) => Promise<Document<unknown, any, IUser>>
+  findUserByCredentials: (
+    // eslint-disable-next-line
+    email: string, password: string) => Promise<Document<unknown, any, IUser>>
 }
 
 const userSchema = new Schema<IUser, UserModel>({
